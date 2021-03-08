@@ -1,3 +1,12 @@
 <resources>
-    <string name="app_name">Lesson1</string>
+    <string name="app_name">ContactList</string>
+    <string name="contact_name">Elon Musk</string>
+    <string name="phone_number1">+1 (310) 999 99 99</string>
+    <string name="phone_number2">+1 (666) 222 22 22</string>
+    <string name="contact_email1">elon.musk@gmail.com</string>
+    <string name="contact_email2">elon@musk.net</string>
+    <string name="contact_description">Genius, Billionaire, Playboy, Philanthropist</string>
+    <string name="content_image">contact_photo</string>
+    <string name="contact_list_title">Список контактов</string>
+    <string name="contact_details_title">Детали контакта</string>
 </resources>
