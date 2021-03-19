@@ -47,9 +47,9 @@ class ContactListFragment : Fragment() {
     private val callback = object : ResultListener {
         override fun onComplete(result: ArrayList<Contact>) {
             view?.post(Runnable {
-                val nameTextView = view?.findViewById<TextView>(R.id.contactNameDetails)
-                val numTextView = view?.findViewById<TextView>(R.id.contactNum)
-                val imageView = view?.findViewById<ImageView>(R.id.contactImageDetails)
+                val nameTextView = view?.findViewById<TextView>(R.id.contact_name_details)
+                val numTextView = view?.findViewById<TextView>(R.id.contact_num)
+                val imageView = view?.findViewById<ImageView>(R.id.contact_image_details)
                 nameTextView?.text = result[0].name
                 numTextView?.text = result[0].firstNum
                 imageView?.setImageDrawable(activity?.let { ContextCompat.getDrawable(it.applicationContext, result[0].image) })

@@ -9,4 +9,23 @@
     <string name="content_image">contact_photo</string>
     <string name="contact_list_title">Список контактов</string>
     <string name="contact_details_title">Детали контакта</string>
+    <string name="contact_birthday">День рождения: %1$s</string>
+    <string name="on_notification">Включить напоминания</string>
+    <string name="off_notification">Выключить напоминания</string>
+    <string name="notification_text">Сегодня день рождения у %1$s</string>
+    <string name="notification_channel_name">My channel</string>
+    <string-array name="array_months">
+        <item>января</item>
+        <item>февраля</item>
+        <item>марта</item>
+        <item>апреля</item>
+        <item>мая</item>
+        <item>июня</item>
+        <item>июля</item>
+        <item>августа</item>
+        <item>сентября</item>
+        <item>октября</item>
+        <item>ноября</item>
+        <item>декабря</item>
+    </string-array>
 </resources>
