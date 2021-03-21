@@ -39,13 +39,19 @@ class MainActivity : AppCompatActivity(),
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        if(savedInstanceState == null) {
-            supportFragmentManager.beginTransaction()
-                    .add(R.id.fragments_container, ContactListFragment(), TAG)
-                    .commit()
+        if(intent.extras?.containsKey(EXTRA_CONTACT_ID) == true && savedInstanceState == null) {
+            addContactListFragment()
+            startContactDetailsFromNotification(intent)
+        } else if(savedInstanceState == null) {
+            addContactListFragment()
         }
         val intent = Intent(this, ContactService::class.java)
         bindService(intent, connection, Context.BIND_AUTO_CREATE)
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        startContactDetailsFromNotification(intent)
     }
 
     override fun onDestroy() {
@@ -57,11 +63,30 @@ class MainActivity : AppCompatActivity(),
         super.onDestroy()
     }
 
-    override fun onClickFragment() {
+    private fun startContactDetailsFromNotification(intent: Intent?) {
+        val fragmentManager = supportFragmentManager
+        if(fragmentManager.backStackEntryCount==1) {
+            fragmentManager.popBackStack()
+        }
+        val id: Int = requireNotNull(intent?.extras?.getInt(EXTRA_CONTACT_ID))
+        replaceContactDetailsFragment(id)
+    }
+
+    private fun addContactListFragment() {
         supportFragmentManager.beginTransaction()
-                .replace(R.id.fragments_container, ContactDetailsFragment.newInstance(CONTACT_ID), TAG)
-                .addToBackStack(null)
-                .commit()
+            .add(R.id.fragments_container, ContactListFragment(), TAG)
+            .commit()
+    }
+
+    private fun replaceContactDetailsFragment(id: Int) {
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fragments_container, ContactDetailsFragment.newInstance(id), TAG)
+            .addToBackStack(null)
+            .commit()
+    }
+
+    override fun onClickFragment() {
+        replaceContactDetailsFragment(CONTACT_ID)
     }
 
     override fun getService() : ContactService? {
