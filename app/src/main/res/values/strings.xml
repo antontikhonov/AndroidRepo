@@ -28,4 +28,11 @@
         <item>ноября</item>
         <item>декабря</item>
     </string-array>
+    <string name="noPermissionsDialogTitle">Доступ к контактам</string>
+    <string name="noPermissionsDialogList">Для загрузки списка контактов необходимо разрешение для доступа к контактам</string>
+    <string name="noPermissionsDialogDetails">Для загрузки информации о контакте необходимо разрешение для доступа к контактам</string>
+    <string name="noPermissionsDialogButton">Разрешить</string>
+    <string name="snackbarButton">Настройки</string>
+    <string name="snackbarTitleList">Требуется разрешение для загрузки списка контактов</string>
+    <string name="snackbarTitleDetails">Требуется разрешение для загрузки информации о контакте</string>
 </resources>

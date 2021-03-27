@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView android:layout_width="match_parent"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true"
-    xmlns:android="http://schemas.android.com/apk/res/android">
-    <androidx.constraintlayout.widget.ConstraintLayout
-        xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:fillViewport="true">
+
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/white"
@@ -16,74 +17,74 @@
             android:layout_height="@dimen/contact_image_height"
             android:contentDescription="@string/content_image"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@android:drawable/ic_menu_my_calendar" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/contact_name_details"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/header_margin_start"
-            android:text="@string/contact_name"
             android:textSize="@dimen/text_size_name"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/contact_image_details"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="@string/contact_name" />
 
         <TextView
             android:id="@+id/contact_num_first"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/vertical_margin_lines"
-            android:text="@string/phone_number1"
             android:textSize="@dimen/text_size"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/contact_image_details" />
+            app:layout_constraintTop_toBottomOf="@+id/contact_image_details"
+            tools:text="@string/phone_number1" />
 
         <TextView
             android:id="@+id/contact_num_second"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/vertical_margin_lines"
-            android:text="@string/phone_number2"
             android:textSize="@dimen/text_size"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/contact_num_first" />
+            app:layout_constraintTop_toBottomOf="@+id/contact_num_first"
+            tools:text="@string/phone_number2" />
 
         <TextView
             android:id="@+id/contact_email_first"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/vertical_margin_lines"
-            android:text="@string/contact_email1"
             android:textSize="@dimen/text_size"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/contact_num_second" />
+            app:layout_constraintTop_toBottomOf="@+id/contact_num_second"
+            tools:text="@string/contact_email1" />
 
         <TextView
             android:id="@+id/contact_email_second"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/vertical_margin_lines"
-            android:text="@string/contact_email2"
             android:textSize="@dimen/text_size"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/contact_email_first" />
+            app:layout_constraintTop_toBottomOf="@+id/contact_email_first"
+            tools:text="@string/contact_email2" />
 
         <TextView
             android:id="@+id/contact_description"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/vertical_margin_lines"
-            android:text="@string/contact_description"
             android:textSize="@dimen/text_size"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/contact_email_second" />
+            app:layout_constraintTop_toBottomOf="@+id/contact_email_second"
+            tools:text="@string/contact_description" />
+
         <TextView
             android:id="@+id/contact_birthday"
             android:layout_width="0dp"
@@ -93,13 +94,15 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/contact_description" />
-        <Button android:id="@+id/button_reminder"
+
+        <Button
+            android:id="@+id/button_reminder"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/vertical_margin_lines"
+            android:enabled="false"
             android:text="@string/on_notification"
             android:textSize="@dimen/text_size"
-            android:enabled="false"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/contact_birthday" />
