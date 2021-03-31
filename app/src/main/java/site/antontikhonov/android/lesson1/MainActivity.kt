@@ -1,5 +1,6 @@
 package site.antontikhonov.android.lesson1
 
+import android.Manifest
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -9,17 +10,19 @@ import android.os.Bundle
 import android.os.IBinder
 import java.lang.ref.WeakReference
 
-private const val CONTACT_ID = 0
 private const val TAG = "fragmentTag"
+const val DIALOG_TAG = "dialogTag"
 
 class MainActivity : AppCompatActivity(),
     ContactListFragment.ContactListListener,
+    AlertDialogFragment.AlertDialogDisplayer,
     ContactService.ServiceInterface {
 
     private var contactService: ContactService? = null
     private var bound = false
+    private var alertDialogFragment: AlertDialogFragment? = null
+    private var connection = object : ServiceConnection {
 
-    private val connection = object : ServiceConnection {
         override fun onServiceDisconnected(name: ComponentName?) {
             bound = false
         }
@@ -28,10 +31,11 @@ class MainActivity : AppCompatActivity(),
             val binder = service as ContactService.ContactBinder
             contactService = binder.getService()
             bound = true
+            val isStartCheckPermission: Boolean = intent.extras?.getBoolean(EXTRA_START_CHECK_PERMISSION) ?: true
             val weakReferenceFragment = WeakReference(supportFragmentManager.findFragmentByTag(TAG))
             when (val fragment = weakReferenceFragment.get()) {
-                is ContactListFragment -> fragment.loadContacts()
-                is ContactDetailsFragment -> fragment.loadContactById()
+                is ContactListFragment -> replaceContactListFragment(isStartCheckPermission)
+                is ContactDetailsFragment -> replaceAndPopContactDetails(fragment.contactId)
             }
         }
     }
@@ -39,19 +43,29 @@ class MainActivity : AppCompatActivity(),
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        if(intent.extras?.containsKey(EXTRA_CONTACT_ID) == true && savedInstanceState == null) {
-            addContactListFragment()
-            startContactDetailsFromNotification(intent)
+        val isStartCheckPermission: Boolean = intent.extras?.getBoolean(EXTRA_START_CHECK_PERMISSION) ?: true
+        if(!isStartCheckPermission && savedInstanceState == null) {
+            replaceContactListFragment(isStartCheckPermission)
+            val id = requireNotNull(intent?.extras?.getString(EXTRA_CONTACT_ID))
+            replaceAndPopContactDetails(id)
         } else if(savedInstanceState == null) {
-            addContactListFragment()
+            replaceContactListFragment(false)
         }
         val intent = Intent(this, ContactService::class.java)
         bindService(intent, connection, Context.BIND_AUTO_CREATE)
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        if(alertDialogFragment?.isAdded == true) {
+            alertDialogFragment?.dismissAllowingStateLoss()
+        }
+        super.onSaveInstanceState(outState)
+    }
+
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
-        startContactDetailsFromNotification(intent)
+        val id = requireNotNull(intent?.extras?.getString(EXTRA_CONTACT_ID))
+        replaceAndPopContactDetails(id)
     }
 
     override fun onDestroy() {
@@ -63,33 +77,49 @@ class MainActivity : AppCompatActivity(),
         super.onDestroy()
     }
 
-    private fun startContactDetailsFromNotification(intent: Intent?) {
+    private fun replaceAndPopContactDetails(id: String) {
         val fragmentManager = supportFragmentManager
         if(fragmentManager.backStackEntryCount==1) {
             fragmentManager.popBackStack()
         }
-        val id: Int = requireNotNull(intent?.extras?.getInt(EXTRA_CONTACT_ID))
         replaceContactDetailsFragment(id)
     }
 
-    private fun addContactListFragment() {
+    private fun replaceContactListFragment(isStartCheckPermission: Boolean) {
         supportFragmentManager.beginTransaction()
-            .add(R.id.fragments_container, ContactListFragment(), TAG)
+            .replace(R.id.fragments_container, ContactListFragment.newInstance(isStartCheckPermission), TAG)
             .commit()
     }
 
-    private fun replaceContactDetailsFragment(id: Int) {
+    private fun replaceContactDetailsFragment(id: String) {
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragments_container, ContactDetailsFragment.newInstance(id), TAG)
             .addToBackStack(null)
             .commit()
     }
 
-    override fun onClickFragment() {
-        replaceContactDetailsFragment(CONTACT_ID)
+    override fun onClickFragment(id: String) {
+        replaceContactDetailsFragment(id)
     }
 
     override fun getService() : ContactService? {
         return contactService
+    }
+
+    override fun displayAlertDialog(resMessage: Int) {
+        if(alertDialogFragment == null) {
+            alertDialogFragment = AlertDialogFragment.newInstance(resMessage)
+        }
+        if(alertDialogFragment?.isAdded == false) {
+            alertDialogFragment?.show(supportFragmentManager, DIALOG_TAG)
+        }
+    }
+
+    fun restartCheckPermission() {
+        val weakReferenceFragment = WeakReference(supportFragmentManager.findFragmentByTag(TAG))
+        when (val fragment = weakReferenceFragment.get()) {
+            is ContactListFragment -> fragment.requestPermissionLauncher.launch(Manifest.permission.READ_CONTACTS)
+            is ContactDetailsFragment -> fragment.requestPermissionLauncher.launch(Manifest.permission.READ_CONTACTS)
+        }
     }
 }

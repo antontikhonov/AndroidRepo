@@ -14,16 +14,16 @@ const val CHANNEL_ID = "Channel_01"
 
 class MyReceiver : BroadcastReceiver() {
     private var notificationManager: NotificationManager? = null
-    private var contactId: Int = 0
+    private var contactId: String = "0"
     private lateinit var contactName: String
 
     override fun onReceive(context: Context, intent: Intent) {
-        contactId = intent.extras?.getInt(EXTRA_CONTACT_ID) ?: throw IllegalArgumentException("Contact ID required")
+        contactId = intent.extras?.getString(EXTRA_CONTACT_ID) ?: throw IllegalArgumentException("Contact ID required")
         contactName = intent.extras?.getString(EXTRA_NAME) ?: throw IllegalArgumentException("Contact name required")
         notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
         createNotificationChannel(context)
         createNotification(context, contactId)
-        val pendingIntent = PendingIntent.getBroadcast(context, contactId, intent, 0)
+        val pendingIntent = PendingIntent.getBroadcast(context, contactId.toInt(), intent, 0)
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         alarmManager.set(AlarmManager.RTC_WAKEUP, nextCalendarBirthday().timeInMillis, pendingIntent)
     }
@@ -35,17 +35,18 @@ class MyReceiver : BroadcastReceiver() {
         }
     }
 
-    private fun createNotification(context: Context, id: Int) {
+    private fun createNotification(context: Context, id: String) {
         val notificationIntent = Intent(context, MainActivity::class.java)
         notificationIntent.putExtra(EXTRA_CONTACT_ID, id)
-        val pendingIntent = PendingIntent.getActivity(context, contactId, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+        notificationIntent.putExtra(EXTRA_START_CHECK_PERMISSION, false)
+        val pendingIntent = PendingIntent.getActivity(context, id.toInt(), notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT)
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.elon)
+            .setSmallIcon(R.drawable.contact)
             .setContentText(context.getString(R.string.notification_text, contactName))
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
             .build()
-        notificationManager?.notify(contactId, notification)
+        notificationManager?.notify(id.toInt(), notification)
     }
 
     private fun nextCalendarBirthday(): Calendar {

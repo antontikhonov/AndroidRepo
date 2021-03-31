@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/contactListLayout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -11,26 +11,25 @@
         android:id="@+id/contact_image_details"
         android:layout_width="@dimen/contact_image_width"
         android:layout_height="@dimen/contact_image_height"
-        android:contentDescription="@string/content_image"
-        app:srcCompat="@android:drawable/ic_menu_my_calendar" />
+        android:contentDescription="@string/content_image" />
 
     <TextView
-        android:id="@+id/contact_name_details"
+        android:id="@+id/contact_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/header_margin_start"
         android:layout_toEndOf="@id/contact_image_details"
-        android:text="@string/contact_name"
-        android:textSize="@dimen/text_size_name" />
+        android:textSize="@dimen/text_size_name"
+        tools:text="@string/contact_name" />
 
     <TextView
         android:id="@+id/contact_num"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/contact_name_details"
+        android:layout_below="@id/contact_name"
         android:layout_marginStart="@dimen/header_margin_start"
         android:layout_marginTop="@dimen/vertical_margin_lines"
         android:layout_toEndOf="@id/contact_image_details"
-        android:text="@string/phone_number1"
-        android:textSize="@dimen/text_size" />
+        android:textSize="@dimen/text_size"
+        tools:text="@string/phone_number1" />
 </RelativeLayout>

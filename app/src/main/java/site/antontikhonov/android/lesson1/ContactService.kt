@@ -16,14 +16,14 @@ class ContactService : Service() {
     fun getContacts(callback: ContactListFragment.ResultListener) {
         val weakReferenceCallback = WeakReference(callback)
         Thread {
-            weakReferenceCallback.get()?.onComplete(contacts)
+            weakReferenceCallback.get()?.onComplete(ContactResolver.getContactsList(contentResolver))
         }.start()
     }
 
-    fun getContactById(callback: ContactDetailsFragment.ResultListener, id: Int) {
+    fun getContactById(callback: ContactDetailsFragment.ResultListener, id: String) {
         val weakReferenceCallback = WeakReference(callback)
         Thread {
-            weakReferenceCallback.get()?.onComplete(contacts[id])
+            weakReferenceCallback.get()?.onComplete(ContactResolver.findContactById(contentResolver, id))
         }.start()
     }
 
