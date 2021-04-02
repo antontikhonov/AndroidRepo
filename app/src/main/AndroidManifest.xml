@@ -12,13 +12,12 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <receiver
-            android:name=".MyReceiver"
+            android:name=".BirthdayReceiver"
             android:enabled="true">
             <intent-filter>
                 <action android:name="site.antontikhonov.android.broadcast" />
             </intent-filter>
         </receiver>
-        <service android:name=".ContactService" />
         <activity android:name=".MainActivity"
             android:launchMode="singleTop">
             <intent-filter>
