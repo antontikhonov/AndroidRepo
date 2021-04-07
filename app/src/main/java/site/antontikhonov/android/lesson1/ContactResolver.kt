@@ -1,6 +1,7 @@
 package site.antontikhonov.android.lesson1
 
 import android.content.ContentResolver
+import android.content.Context
 import android.database.Cursor
 import android.net.Uri
 import android.provider.ContactsContract.Contacts
@@ -13,13 +14,16 @@ object ContactResolver {
     private const val FIND_CONTACT_BY_ID_SELECTION = "${Contacts._ID} = ?"
     private const val GET_LIST_PHONES_SELECTION = "${CommonDataKinds.Phone.CONTACT_ID} = ?"
     private const val GET_LIST_EMAILS_SELECTION = "${CommonDataKinds.Email.CONTACT_ID} = ?"
-    private const val GET_BIRTHDAY_DATE_SELECTION = " AND ${Data.MIMETYPE}= '${CommonDataKinds.Event.CONTENT_ITEM_TYPE}' AND ${CommonDataKinds.Event.TYPE}=${CommonDataKinds.Event.TYPE_BIRTHDAY}"
+    private const val GET_BIRTHDAY_DATE_SELECTION = " AND ${Data.MIMETYPE}= " +
+            "'${CommonDataKinds.Event.CONTENT_ITEM_TYPE}' AND ${CommonDataKinds.Event.TYPE}=" +
+            "${CommonDataKinds.Event.TYPE_BIRTHDAY}"
     private const val GET_DESCRIPTION_SELECTION = "$DATA_CONTACT_ID ? AND ${Data.MIMETYPE} = ?"
-    private const val GET_PHOTO_URI_SELECTION = " AND ${Data.MIMETYPE}='${CommonDataKinds.Photo.CONTENT_ITEM_TYPE}'"
+    private const val GET_PHOTO_URI_SELECTION = " AND ${Data.MIMETYPE}=" +
+            "'${CommonDataKinds.Photo.CONTENT_ITEM_TYPE}'"
 
-    fun getContactsList(contentResolver: ContentResolver): List<Contact> {
+    fun getContactsList(context: Context): List<Contact> {
         val contactsList = mutableListOf<Contact>()
-        contentResolver.query(
+        context.contentResolver.query(
             Contacts.CONTENT_URI,
             null,
             null,
@@ -27,7 +31,7 @@ object ContactResolver {
             null
         )?.use {
             while (it.moveToNext()) {
-                val contact = it.toContactForList(contentResolver)
+                val contact = it.toContactForList(context.contentResolver)
                 if(contact != null) {
                     contactsList.add(contact)
                 }
@@ -36,9 +40,9 @@ object ContactResolver {
         return contactsList
     }
 
-    fun findContactById(contentResolver: ContentResolver, id: String): Contact? {
+    fun findContactById(context: Context, id: String): Contact? {
         var contact: Contact? = null
-        contentResolver.query(
+        context.contentResolver.query(
             Contacts.CONTENT_URI,
             arrayOf(Contacts.DISPLAY_NAME),
             FIND_CONTACT_BY_ID_SELECTION,
@@ -46,7 +50,7 @@ object ContactResolver {
             null
         )?.use {
             while (it.moveToNext()) {
-                contact = it.toContact(contentResolver, id)
+                contact = it.toContact(context.contentResolver, id)
             }
         }
         return contact

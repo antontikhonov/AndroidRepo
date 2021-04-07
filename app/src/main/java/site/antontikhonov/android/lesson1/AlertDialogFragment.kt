@@ -8,17 +8,6 @@ import androidx.fragment.app.DialogFragment
 const val EXTRA_TITLE_DIALOG = "TITLE_DIALOG"
 
 class AlertDialogFragment : DialogFragment() {
-
-    companion object {
-        fun newInstance(resMessage: Int): AlertDialogFragment {
-            val fragment = AlertDialogFragment()
-            val args = Bundle()
-            args.putInt(EXTRA_TITLE_DIALOG, resMessage)
-            fragment.arguments = args
-            return fragment
-        }
-    }
-
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val resMessage = requireNotNull(arguments?.getInt(EXTRA_TITLE_DIALOG))
         return AlertDialog.Builder(activity)
@@ -31,6 +20,16 @@ class AlertDialogFragment : DialogFragment() {
     override fun onDestroyView() {
         dismissAllowingStateLoss()
         super.onDestroyView()
+    }
+
+    companion object {
+        fun newInstance(resMessage: Int): AlertDialogFragment {
+            val fragment = AlertDialogFragment()
+            val args = Bundle()
+            args.putInt(EXTRA_TITLE_DIALOG, resMessage)
+            fragment.arguments = args
+            return fragment
+        }
     }
 
     interface AlertDialogDisplayer {
