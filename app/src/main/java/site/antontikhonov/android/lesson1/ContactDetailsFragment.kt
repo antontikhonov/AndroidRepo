@@ -37,9 +37,6 @@ class ContactDetailsFragment : Fragment(R.layout.fragment_contact_details) {
     private var viewModel: ContactDetailsViewModel? = null
     private var contactObserver = Observer<Contact> {
         currentContact = it
-        if (it?.dayOfBirthday != null && it.monthOfBirthday != null) {
-            button?.isEnabled = true
-        }
         val nameTextView = requireView().findViewById<TextView>(R.id.contact_name_details)
         val firstPhoneNumberTextView = requireView().findViewById<TextView>(R.id.contact_num_first)
         val secondPhoneNumberTextView = requireView().findViewById<TextView>(R.id.contact_num_second)
@@ -47,34 +44,30 @@ class ContactDetailsFragment : Fragment(R.layout.fragment_contact_details) {
         val secondEmailTextView = requireView().findViewById<TextView>(R.id.contact_email_second)
         val descriptionTextView = requireView().findViewById<TextView>(R.id.contact_description)
         val birthdayTextView = requireView().findViewById<TextView>(R.id.contact_birthday)
-        val imageView = requireView().findViewById<ImageView>(R.id.contact_image_details)
-        nameTextView.text = it?.name
-        if (it?.phoneList?.isNotEmpty() == true) {
-            firstPhoneNumberTextView.text = it.phoneList[0]
-            if (it.phoneList.size > 1) {
-                secondPhoneNumberTextView.text = it.phoneList[1]
-            }
+        val imageView = requireView().findViewById<ImageView>(R.id.contact_image)
+        nameTextView.text = it.name
+        firstPhoneNumberTextView.text = if(it.phoneList.isNotEmpty()) it.phoneList[0] else ""
+        secondPhoneNumberTextView.text = if(it.phoneList.size > 1) it.phoneList[1] else ""
+        if (it.emailList != null) {
+            firstEmailTextView.text = if(it.emailList.isNotEmpty()) it.emailList[0] else ""
+            secondEmailTextView.text = if(it.emailList.size > 1) it.emailList[0] else ""
         }
-        if (it?.emailList != null) {
-            if (it.emailList.isNotEmpty()) {
-                firstEmailTextView.text = it.emailList[0]
-            }
-            if (it.emailList.size > 1) {
-                secondEmailTextView.text = it.emailList[1]
-            }
-        }
-        descriptionTextView.text = it?.description
-        if (it?.dayOfBirthday != null && it.monthOfBirthday != null) {
+        descriptionTextView.text = it.description
+        if (it.dayOfBirthday != null && it.monthOfBirthday != null) {
             birthdayTextView.text = getString(
                     R.string.contact_birthday,
                     completeDateOfBirthday(it.dayOfBirthday, it.monthOfBirthday)
             )
+            button?.isEnabled = true
+        } else {
+            birthdayTextView.text = ""
+            button?.isEnabled = false
         }
-        val photoUri: Uri? = it?.image
+        val photoUri: Uri? = it.image
         if (photoUri != null) {
             imageView.setImageURI(photoUri)
         } else {
-            imageView.setImageResource(R.drawable.contact)
+            imageView.setImageResource(R.drawable.contact_placeholder)
         }
     }
     val requestPermissionLauncher =
@@ -84,7 +77,7 @@ class ContactDetailsFragment : Fragment(R.layout.fragment_contact_details) {
             } else {
                 when {
                     shouldShowRequestPermissionRationale(Manifest.permission.READ_CONTACTS) -> {
-                        displayer?.displayAlertDialog(R.string.noPermissionsDialogDetails)
+                        displayer?.displayAlertDialog(R.string.no_permissions_dialog_details)
                     }
                     else -> {
                         showNoContactPermissionSnackbar()
@@ -137,7 +130,7 @@ class ContactDetailsFragment : Fragment(R.layout.fragment_contact_details) {
                 loadContactById()
             }
             shouldShowRequestPermissionRationale(Manifest.permission.READ_CONTACTS) -> {
-                displayer?.displayAlertDialog(R.string.noPermissionsDialogDetails)
+                displayer?.displayAlertDialog(R.string.no_permissions_dialog_details)
             }
             else -> {
                 requestPermissionLauncher.launch(Manifest.permission.READ_CONTACTS)
@@ -218,8 +211,8 @@ class ContactDetailsFragment : Fragment(R.layout.fragment_contact_details) {
     }
 
     private fun showNoContactPermissionSnackbar() {
-        Snackbar.make(requireView(), R.string.snackbarTitleDetails, Snackbar.LENGTH_INDEFINITE)
-            .setAction(R.string.snackbarButton) {
+        Snackbar.make(requireView(), R.string.snackbar_title_details, Snackbar.LENGTH_INDEFINITE)
+            .setAction(R.string.snackbar_button) {
                 val appSettingsIntent = Intent(
                     Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
                     Uri.parse(URI_PACKAGE_SCHEME + requireActivity().packageName)
