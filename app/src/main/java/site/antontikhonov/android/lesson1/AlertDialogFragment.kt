@@ -11,9 +11,9 @@ class AlertDialogFragment : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val resMessage = requireNotNull(arguments?.getInt(EXTRA_TITLE_DIALOG))
         return AlertDialog.Builder(activity)
-            .setTitle(R.string.noPermissionsDialogTitle)
+            .setTitle(R.string.no_permissions_dialog_title)
             .setMessage(resMessage)
-            .setPositiveButton(R.string.noPermissionsDialogButton) { _, _ -> (activity as? MainActivity)?.restartCheckPermission() }
+            .setPositiveButton(R.string.no_permissions_dialog_button) { _, _ -> (activity as? MainActivity)?.restartCheckPermission() }
             .create()
     }
 

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ContactList</string>
+    <string name="app_name">Contact List</string>
     <string name="contact_name">Elon Musk</string>
     <string name="phone_number1">+1 (310) 999 99 99</string>
     <string name="phone_number2">+1 (666) 222 22 22</string>
@@ -28,11 +28,13 @@
         <item>ноября</item>
         <item>декабря</item>
     </string-array>
-    <string name="noPermissionsDialogTitle">Доступ к контактам</string>
-    <string name="noPermissionsDialogList">Для загрузки списка контактов необходимо разрешение для доступа к контактам</string>
-    <string name="noPermissionsDialogDetails">Для загрузки информации о контакте необходимо разрешение для доступа к контактам</string>
-    <string name="noPermissionsDialogButton">Разрешить</string>
-    <string name="snackbarButton">Настройки</string>
-    <string name="snackbarTitleList">Требуется разрешение для загрузки списка контактов</string>
-    <string name="snackbarTitleDetails">Требуется разрешение для загрузки информации о контакте</string>
+    <string name="no_permissions_dialog_title">Доступ к контактам</string>
+    <string name="no_permissions_dialog_list">Для загрузки списка контактов необходимо разрешение для доступа к контактам</string>
+    <string name="no_permissions_dialog_details">Для загрузки информации о контакте необходимо разрешение для доступа к контактам</string>
+    <string name="no_permissions_dialog_button">Разрешить</string>
+    <string name="snackbar_button">Настройки</string>
+    <string name="snackbar_title_list">Требуется разрешение для загрузки списка контактов</string>
+    <string name="snackbar_title_details">Требуется разрешение для загрузки информации о контакте</string>
+    <string name="search_hint">Найти контакт</string>
+    <string name="search_contact_title">Поиск контакта</string>
 </resources>

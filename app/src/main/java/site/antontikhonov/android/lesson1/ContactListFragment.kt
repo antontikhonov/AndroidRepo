@@ -7,75 +7,69 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
-import android.view.View
-import android.widget.ImageView
-import android.widget.TextView
+import android.view.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 
 class ContactListFragment : Fragment(R.layout.fragment_contact_list) {
-    private var listener: ContactListListener? = null
+
+    private var recyclerView: RecyclerView? = null
+    private var adapter: ContactListAdapter? = null
+    private var contactDecorator: ContactDecorator? = null
     private var displayer: AlertDialogFragment.AlertDialogDisplayer? = null
-    private var layout: View? = null
-    private var contactTestId: String = "0"
-    private var contactListObserver = Observer<List<Contact>> {
-        contactTestId = it[0].id
-        val nameTextView = requireView().findViewById<TextView>(R.id.contact_name)
-        val phoneNumberTextView = requireView().findViewById<TextView>(R.id.contact_num)
-        val imageView = requireView().findViewById<ImageView>(R.id.contact_image_details)
-        nameTextView.text = it[0].name
-        if (it[0].phoneList.isNotEmpty()) {
-            phoneNumberTextView.text = it[0].phoneList[0]
-        }
-        val photoUri: Uri? = it[0].image
-        if (photoUri != null) {
-            imageView.setImageURI(photoUri)
-        } else {
-            imageView.setImageResource(R.drawable.contact)
-        }
-    }
+    private var onItemClickListener: ContactListAdapter.OnItemClickListener? = null
     private var viewModel: ContactListViewModel? = null
+    private val offsetPx = resources.getDimensionPixelSize(R.dimen.main_padding)
+
     val requestPermissionLauncher =
             registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
-            if (isGranted) {
-                loadContacts()
-            } else {
-                when {
-                    shouldShowRequestPermissionRationale(Manifest.permission.READ_CONTACTS) -> {
-                        displayer?.displayAlertDialog(R.string.noPermissionsDialogList)
-                    }
-                    else -> {
-                        showNoContactPermissionSnackbar()
+                if (isGranted) {
+                    loadContacts()
+                } else {
+                    when {
+                        shouldShowRequestPermissionRationale(Manifest.permission.READ_CONTACTS) -> {
+                            displayer?.displayAlertDialog(R.string.no_permissions_dialog_list)
+                        }
+                        else -> {
+                            showNoContactPermissionSnackbar()
+                        }
                     }
                 }
             }
-    }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        if (context is ContactListListener) {
-            listener = context
-        }
         if (context is AlertDialogFragment.AlertDialogDisplayer) {
             displayer = context
+        }
+        if(context is ContactListAdapter.OnItemClickListener) {
+            onItemClickListener = context
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProvider(this).get(ContactListViewModel::class.java)
+        setHasOptionsMenu(true)
+        val drawableDivider = ContextCompat.getDrawable(requireContext().applicationContext, R.drawable.divider)
+        if(drawableDivider != null) {
+            contactDecorator = ContactDecorator(drawableDivider, offsetPx)
+        }
+        adapter = ContactListAdapter { id -> onItemClickListener?.clickItem(id) }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         (activity as AppCompatActivity).supportActionBar?.title = getString(R.string.contact_list_title)
-        layout = view.findViewById(R.id.contactListLayout)
-        layout?.setOnClickListener { listener?.onClickFragment(contactTestId) }
+        initializeRecyclerView(view)
     }
 
     override fun onStart() {
@@ -84,15 +78,36 @@ class ContactListFragment : Fragment(R.layout.fragment_contact_list) {
     }
 
     override fun onDestroyView() {
-        layout = null
+        recyclerView?.adapter = null
+        recyclerView = null
         super.onDestroyView()
     }
 
     override fun onDetach() {
-        listener = null
         displayer = null
         requestPermissionLauncher.unregister()
         super.onDetach()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu, menu)
+        val searchItem = menu.findItem(R.id.appSearchBar)
+        val searchView: SearchView = searchItem.actionView as SearchView
+        searchView.queryHint = getString(R.string.search_hint)
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return false
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                if(newText != null) {
+                    viewModel?.getContactList(requireContext(), newText)?.observe(viewLifecycleOwner,
+                            Observer { adapter?.submitList(it) })
+                }
+                return true
+            }
+        })
+        super.onCreateOptionsMenu(menu, inflater)
     }
 
     private fun checkPermission() {
@@ -103,7 +118,7 @@ class ContactListFragment : Fragment(R.layout.fragment_contact_list) {
                 loadContacts()
             }
             shouldShowRequestPermissionRationale(Manifest.permission.READ_CONTACTS) -> {
-                displayer?.displayAlertDialog(R.string.noPermissionsDialogList)
+                displayer?.displayAlertDialog(R.string.no_permissions_dialog_list)
             }
             else -> {
                 if (isStartCheckPermission) {
@@ -113,12 +128,22 @@ class ContactListFragment : Fragment(R.layout.fragment_contact_list) {
         }
     }
 
-    private fun loadContacts() = viewModel?.getContactList(requireContext())
-            ?.observe(viewLifecycleOwner, contactListObserver)
+    private fun initializeRecyclerView(view: View) {
+        recyclerView = view.findViewById(R.id.recycler_view)
+        with(recyclerView) {
+            this?.setHasFixedSize(true)
+            this?.layoutManager = LinearLayoutManager(context)
+            this?.adapter = adapter
+            contactDecorator?.let { this?.addItemDecoration(it) }
+        }
+    }
+
+    private fun loadContacts() = viewModel?.getContactList(requireContext(), "")
+            ?.observe(viewLifecycleOwner, Observer { adapter?.submitList(it) })
 
     private fun showNoContactPermissionSnackbar() {
-        Snackbar.make(requireView(), R.string.snackbarTitleList, Snackbar.LENGTH_INDEFINITE)
-            .setAction(R.string.snackbarButton) {
+        Snackbar.make(requireView(), R.string.snackbar_title_list, Snackbar.LENGTH_INDEFINITE)
+            .setAction(R.string.snackbar_button) {
                 val appSettingsIntent = Intent(
                     Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
                     Uri.parse(URI_PACKAGE_SCHEME + requireActivity().packageName)
@@ -136,9 +161,5 @@ class ContactListFragment : Fragment(R.layout.fragment_contact_list) {
             fragment.arguments = args
             return fragment
         }
-    }
-
-    interface ContactListListener {
-        fun onClickFragment(id: String)
     }
 }

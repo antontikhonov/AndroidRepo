@@ -12,7 +12,6 @@ import java.util.*
 const val CHANNEL_ID = "Channel_01"
 
 class BirthdayReceiver : BroadcastReceiver() {
-    private var notificationManager: NotificationManager? = null
     private var contactId: String = "0"
     private lateinit var contactName: String
 
@@ -24,6 +23,7 @@ class BirthdayReceiver : BroadcastReceiver() {
     }
 
     private fun createNotification(context: Context, id: String) {
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
         val notificationIntent = Intent(context, MainActivity::class.java)
                 .putExtra(EXTRA_CONTACT_ID, id)
         val notificationPendingIntent = PendingIntent.getActivity(
@@ -33,7 +33,7 @@ class BirthdayReceiver : BroadcastReceiver() {
                 PendingIntent.FLAG_UPDATE_CURRENT
         )
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
-                .setSmallIcon(R.drawable.contact)
+                .setSmallIcon(R.drawable.contact_placeholder)
                 .setContentText(context.getString(R.string.notification_text, contactName))
                 .setContentIntent(notificationPendingIntent)
                 .setAutoCancel(true)

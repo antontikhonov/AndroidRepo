@@ -8,12 +8,12 @@ object ContactProviderRepository : ContactRepository {
     private lateinit var contactList: MutableLiveData<List<Contact>>
     private lateinit var contact: MutableLiveData<Contact>
 
-    override fun loadContactList(context: Context) : LiveData<List<Contact>> {
+    override fun loadContactList(context: Context, name: String) : LiveData<List<Contact>> {
         if(!::contactList.isInitialized) {
             contactList = MutableLiveData()
         }
         Thread {
-            contactList.postValue(ContactResolver.getContactsList(context))
+            contactList.postValue(ContactResolver.getContactsList(context, name))
         }.start()
         return contactList
     }

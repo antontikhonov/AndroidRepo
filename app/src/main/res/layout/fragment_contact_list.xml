@@ -1,35 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.recyclerview.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/contactListLayout"
+    android:id="@+id/recycler_view"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@color/white"
-    android:padding="@dimen/main_padding">
-
-    <ImageView
-        android:id="@+id/contact_image_details"
-        android:layout_width="@dimen/contact_image_width"
-        android:layout_height="@dimen/contact_image_height"
-        android:contentDescription="@string/content_image" />
-
-    <TextView
-        android:id="@+id/contact_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/header_margin_start"
-        android:layout_toEndOf="@id/contact_image_details"
-        android:textSize="@dimen/text_size_name"
-        tools:text="@string/contact_name" />
-
-    <TextView
-        android:id="@+id/contact_num"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/contact_name"
-        android:layout_marginStart="@dimen/header_margin_start"
-        android:layout_marginTop="@dimen/vertical_margin_lines"
-        android:layout_toEndOf="@id/contact_image_details"
-        android:textSize="@dimen/text_size"
-        tools:text="@string/phone_number1" />
-</RelativeLayout>
+    android:layout_height="match_parent"
+    tools:listitem="@layout/item_contact" />

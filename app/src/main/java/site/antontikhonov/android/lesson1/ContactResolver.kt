@@ -12,6 +12,7 @@ object ContactResolver {
     private val DATE_SEPARATOR: Regex = Regex("-+")
     private const val DATA_CONTACT_ID = "${Data.CONTACT_ID}="
     private const val FIND_CONTACT_BY_ID_SELECTION = "${Contacts._ID} = ?"
+    private const val GET_DISPLAY_NAME_SELECTION = "${Contacts.DISPLAY_NAME} LIKE ?"
     private const val GET_LIST_PHONES_SELECTION = "${CommonDataKinds.Phone.CONTACT_ID} = ?"
     private const val GET_LIST_EMAILS_SELECTION = "${CommonDataKinds.Email.CONTACT_ID} = ?"
     private const val GET_BIRTHDAY_DATE_SELECTION = " AND ${Data.MIMETYPE}= " +
@@ -21,13 +22,13 @@ object ContactResolver {
     private const val GET_PHOTO_URI_SELECTION = " AND ${Data.MIMETYPE}=" +
             "'${CommonDataKinds.Photo.CONTENT_ITEM_TYPE}'"
 
-    fun getContactsList(context: Context): List<Contact> {
+    fun getContactsList(context: Context, name: String): List<Contact> {
         val contactsList = mutableListOf<Contact>()
         context.contentResolver.query(
             Contacts.CONTENT_URI,
             null,
-            null,
-            null,
+            GET_DISPLAY_NAME_SELECTION,
+            arrayOf("$name%"),
             null
         )?.use {
             while (it.moveToNext()) {

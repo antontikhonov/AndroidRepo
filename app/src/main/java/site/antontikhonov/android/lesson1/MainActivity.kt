@@ -13,8 +13,8 @@ private const val TAG = "fragmentTag"
 private const val DIALOG_TAG = "dialogTag"
 
 class MainActivity : AppCompatActivity(),
-    ContactListFragment.ContactListListener,
-    AlertDialogFragment.AlertDialogDisplayer {
+        ContactListAdapter.OnItemClickListener,
+        AlertDialogFragment.AlertDialogDisplayer {
 
     private var alertDialogFragment: AlertDialogFragment? = null
 
@@ -33,8 +33,10 @@ class MainActivity : AppCompatActivity(),
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
-        val id = requireNotNull(intent?.extras?.getString(EXTRA_CONTACT_ID))
-        popAndReplaceContactDetails(id)
+        val id = intent?.extras?.getString(EXTRA_CONTACT_ID)
+        if(id != null) {
+            popAndReplaceContactDetails(id)
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -53,7 +55,9 @@ class MainActivity : AppCompatActivity(),
         }
     }
 
-    override fun onClickFragment(id: String) = replaceContactDetailsFragment(id)
+    override fun clickItem(id: String) {
+        replaceContactDetailsFragment(id)
+    }
 
     fun restartCheckPermission() {
         val weakReferenceFragment = WeakReference(supportFragmentManager.findFragmentByTag(TAG))
@@ -64,10 +68,9 @@ class MainActivity : AppCompatActivity(),
     }
 
     private fun createNotificationChannel() {
-        val notificationManager = this.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             val channel = NotificationChannel(CHANNEL_ID, this.getString(R.string.notification_channel_name), NotificationManager.IMPORTANCE_DEFAULT)
-            notificationManager?.createNotificationChannel(channel)
+            (this.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager)?.createNotificationChannel(channel)
         }
     }
 

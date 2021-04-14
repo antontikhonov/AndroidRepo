@@ -12,7 +12,7 @@
         android:padding="@dimen/main_padding">
 
         <ImageView
-            android:id="@+id/contact_image_details"
+            android:id="@+id/contact_image"
             android:layout_width="@dimen/contact_image_width"
             android:layout_height="@dimen/contact_image_height"
             android:contentDescription="@string/content_image"
@@ -26,7 +26,7 @@
             android:layout_marginStart="@dimen/header_margin_start"
             android:textSize="@dimen/text_size_name"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/contact_image_details"
+            app:layout_constraintStart_toEndOf="@+id/contact_image"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="@string/contact_name" />
 
@@ -38,7 +38,7 @@
             android:textSize="@dimen/text_size"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/contact_image_details"
+            app:layout_constraintTop_toBottomOf="@+id/contact_image"
             tools:text="@string/phone_number1" />
 
         <TextView
