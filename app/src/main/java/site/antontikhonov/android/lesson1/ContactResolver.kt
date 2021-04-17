@@ -21,6 +21,7 @@ object ContactResolver {
     private const val GET_DESCRIPTION_SELECTION = "$DATA_CONTACT_ID ? AND ${Data.MIMETYPE} = ?"
     private const val GET_PHOTO_URI_SELECTION = " AND ${Data.MIMETYPE}=" +
             "'${CommonDataKinds.Photo.CONTENT_ITEM_TYPE}'"
+    private const val ABC_SORT_ORDER_CONTACTS = "upper(${CommonDataKinds.Phone.DISPLAY_NAME}) ASC"
 
     fun getContactsList(context: Context, name: String): List<Contact> {
         val contactsList = mutableListOf<Contact>()
@@ -29,7 +30,7 @@ object ContactResolver {
             null,
             GET_DISPLAY_NAME_SELECTION,
             arrayOf("$name%"),
-            null
+            ABC_SORT_ORDER_CONTACTS
         )?.use {
             while (it.moveToNext()) {
                 val contact = it.toContactForList(context.contentResolver)

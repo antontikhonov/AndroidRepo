@@ -12,6 +12,7 @@ import android.provider.Settings
 import android.view.View
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -29,12 +30,13 @@ const val EXTRA_START_CHECK_PERMISSION = "START_CHECK_PERMISSION"
 const val URI_PACKAGE_SCHEME = "package:"
 
 class ContactDetailsFragment : Fragment(R.layout.fragment_contact_details) {
-    private var contactId: String = "0"
+    private lateinit var contactId: String
     private var displayer: AlertDialogFragment.AlertDialogDisplayer? = null
     private var currentContact: Contact? = null
     private var button: Button? = null
     private var isNotificationsEnabled = false
     private var viewModel: ContactDetailsViewModel? = null
+    private var progressBar: ProgressBar? = null
     private var contactObserver = Observer<Contact> {
         currentContact = it
         val nameTextView = requireView().findViewById<TextView>(R.id.contact_name_details)
@@ -101,10 +103,18 @@ class ContactDetailsFragment : Fragment(R.layout.fragment_contact_details) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         (activity as AppCompatActivity).supportActionBar?.title = getString(R.string.contact_details_title)
-        contactId = arguments?.getString(EXTRA_CONTACT_ID) ?: throw IllegalArgumentException("Contact ID required")
+        progressBar = view.findViewById(R.id.progress_bar_contact_details)
+        contactId = requireNotNull(arguments?.getString(EXTRA_CONTACT_ID))
         button = view.findViewById(R.id.button_reminder)
         updateButtonState()
         button?.setOnClickListener { clickOnNotificationButton() }
+        viewModel?.contact?.observe(viewLifecycleOwner, contactObserver)
+        viewModel?.isLoading?.observe(viewLifecycleOwner, Observer { isLoading ->
+            when(isLoading) {
+                true -> progressBar?.visibility = View.VISIBLE
+                false -> progressBar?.visibility = View.GONE
+            }
+        })
     }
 
     override fun onStart() {
@@ -114,6 +124,7 @@ class ContactDetailsFragment : Fragment(R.layout.fragment_contact_details) {
 
     override fun onDestroyView() {
         button = null
+        progressBar = null
         super.onDestroyView()
     }
 
@@ -187,7 +198,6 @@ class ContactDetailsFragment : Fragment(R.layout.fragment_contact_details) {
     private fun isLeap(year: Int) = ((year % 4) == 0 && (year % 100) != 0) || (year % 400) == 0
 
     private fun loadContactById() = viewModel?.getContactById(requireContext(), contactId)
-            ?.observe(viewLifecycleOwner, contactObserver)
 
     private fun nextCalendarBirthday(): Calendar {
         val dayBirthday: Int = requireNotNull(currentContact?.dayOfBirthday)
