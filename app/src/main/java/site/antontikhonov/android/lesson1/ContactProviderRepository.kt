@@ -1,30 +1,12 @@
 package site.antontikhonov.android.lesson1
 
 import android.content.Context
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import io.reactivex.rxjava3.core.Single
 
 object ContactProviderRepository : ContactRepository {
-    private lateinit var contactList: MutableLiveData<List<Contact>>
-    private lateinit var contact: MutableLiveData<Contact>
+    override fun loadContactList(context: Context, name: String) : Single<List<Contact>> =
+        Single.fromCallable<List<Contact>> { ContactResolver.getContactsList(context, name) }
 
-    override fun loadContactList(context: Context, name: String) : LiveData<List<Contact>> {
-        if(!::contactList.isInitialized) {
-            contactList = MutableLiveData()
-        }
-        Thread {
-            contactList.postValue(ContactResolver.getContactsList(context, name))
-        }.start()
-        return contactList
-    }
-
-    override fun loadContact(context: Context, id: String) : LiveData<Contact> {
-        if(!::contact.isInitialized) {
-            contact = MutableLiveData()
-        }
-        Thread {
-            contact.postValue(ContactResolver.findContactById(context, id))
-        }.start()
-        return contact
-    }
+    override fun loadContact(context: Context, id: String): Single<Contact> =
+        Single.fromCallable<Contact> { ContactResolver.findContactById(context, id) }
 }

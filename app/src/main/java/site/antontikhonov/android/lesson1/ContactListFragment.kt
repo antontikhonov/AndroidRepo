@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
 import android.view.*
+import android.widget.ProgressBar
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
@@ -27,7 +28,7 @@ class ContactListFragment : Fragment(R.layout.fragment_contact_list) {
     private var displayer: AlertDialogFragment.AlertDialogDisplayer? = null
     private var onItemClickListener: ContactListAdapter.OnItemClickListener? = null
     private var viewModel: ContactListViewModel? = null
-    private val offsetPx = resources.getDimensionPixelSize(R.dimen.main_padding)
+    private var progressBar: ProgressBar? = null
 
     val requestPermissionLauncher =
             registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
@@ -61,6 +62,7 @@ class ContactListFragment : Fragment(R.layout.fragment_contact_list) {
         setHasOptionsMenu(true)
         val drawableDivider = ContextCompat.getDrawable(requireContext().applicationContext, R.drawable.divider)
         if(drawableDivider != null) {
+            val offsetPx = resources.getDimensionPixelSize(R.dimen.main_padding)
             contactDecorator = ContactDecorator(drawableDivider, offsetPx)
         }
         adapter = ContactListAdapter { id -> onItemClickListener?.clickItem(id) }
@@ -69,7 +71,15 @@ class ContactListFragment : Fragment(R.layout.fragment_contact_list) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         (activity as AppCompatActivity).supportActionBar?.title = getString(R.string.contact_list_title)
+        progressBar = view.findViewById(R.id.progress_bar_contact_list)
         initializeRecyclerView(view)
+        viewModel?.contacts?.observe(viewLifecycleOwner, Observer { adapter?.submitList(it) })
+        viewModel?.isLoading?.observe(viewLifecycleOwner, Observer { isLoading ->
+            when(isLoading) {
+                true -> progressBar?.visibility = View.VISIBLE
+                false -> progressBar?.visibility = View.GONE
+            }
+        })
     }
 
     override fun onStart() {
@@ -80,6 +90,7 @@ class ContactListFragment : Fragment(R.layout.fragment_contact_list) {
     override fun onDestroyView() {
         recyclerView?.adapter = null
         recyclerView = null
+        progressBar = null
         super.onDestroyView()
     }
 
@@ -94,19 +105,7 @@ class ContactListFragment : Fragment(R.layout.fragment_contact_list) {
         val searchItem = menu.findItem(R.id.appSearchBar)
         val searchView: SearchView = searchItem.actionView as SearchView
         searchView.queryHint = getString(R.string.search_hint)
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                return false
-            }
-
-            override fun onQueryTextChange(newText: String?): Boolean {
-                if(newText != null) {
-                    viewModel?.getContactList(requireContext(), newText)?.observe(viewLifecycleOwner,
-                            Observer { adapter?.submitList(it) })
-                }
-                return true
-            }
-        })
+        viewModel?.searchContact(requireContext(), RxSearchObservable.fromView(searchView))
         super.onCreateOptionsMenu(menu, inflater)
     }
 
@@ -138,8 +137,7 @@ class ContactListFragment : Fragment(R.layout.fragment_contact_list) {
         }
     }
 
-    private fun loadContacts() = viewModel?.getContactList(requireContext(), "")
-            ?.observe(viewLifecycleOwner, Observer { adapter?.submitList(it) })
+    private fun loadContacts() = viewModel?.loadContactList(requireContext())
 
     private fun showNoContactPermissionSnackbar() {
         Snackbar.make(requireView(), R.string.snackbar_title_list, Snackbar.LENGTH_INDEFINITE)
