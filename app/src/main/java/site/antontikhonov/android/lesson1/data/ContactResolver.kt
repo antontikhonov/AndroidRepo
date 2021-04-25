@@ -1,4 +1,4 @@
-package site.antontikhonov.android.lesson1
+package site.antontikhonov.android.lesson1.data
 
 import android.content.ContentResolver
 import android.content.Context
@@ -7,6 +7,7 @@ import android.net.Uri
 import android.provider.ContactsContract.Contacts
 import android.provider.ContactsContract.CommonDataKinds
 import android.provider.ContactsContract.Data
+import site.antontikhonov.android.lesson1.models.Contact
 
 object ContactResolver {
     private val DATE_SEPARATOR: Regex = Regex("-+")

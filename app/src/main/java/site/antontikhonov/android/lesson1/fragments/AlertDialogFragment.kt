@@ -1,9 +1,11 @@
-package site.antontikhonov.android.lesson1
+package site.antontikhonov.android.lesson1.fragments
 
 import android.app.AlertDialog
 import android.app.Dialog
 import android.os.Bundle
 import androidx.fragment.app.DialogFragment
+import site.antontikhonov.android.lesson1.MainActivity
+import site.antontikhonov.android.lesson1.R
 
 const val EXTRA_TITLE_DIALOG = "TITLE_DIALOG"
 

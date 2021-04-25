@@ -1,4 +1,4 @@
-package site.antontikhonov.android.lesson1
+package site.antontikhonov.android.lesson1.models
 
 import android.net.Uri
 

@@ -1,4 +1,4 @@
-package site.antontikhonov.android.lesson1
+package site.antontikhonov.android.lesson1.fragments
 
 import android.Manifest
 import android.app.AlarmManager
@@ -21,8 +21,15 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.Observer
 import com.google.android.material.snackbar.Snackbar
+import site.antontikhonov.android.lesson1.models.Contact
+import site.antontikhonov.android.lesson1.ContactListApplication
+import site.antontikhonov.android.lesson1.R
+import site.antontikhonov.android.lesson1.extensions.injectViewModel
+import site.antontikhonov.android.lesson1.receivers.BirthdayReceiver
+import site.antontikhonov.android.lesson1.viewmodels.ContactDetailsViewModel
 import java.lang.StringBuilder
 import java.util.*
+import javax.inject.Inject
 
 const val EXTRA_CONTACT_ID = "CONTACT_ID"
 const val EXTRA_NAME = "CONTACT_NAME"
@@ -30,12 +37,15 @@ const val EXTRA_START_CHECK_PERMISSION = "START_CHECK_PERMISSION"
 const val URI_PACKAGE_SCHEME = "package:"
 
 class ContactDetailsFragment : Fragment(R.layout.fragment_contact_details) {
+
+    @Inject
+    lateinit var factory: ViewModelProvider.Factory
+    private lateinit var viewModel: ContactDetailsViewModel
+    private var currentContact: Contact? = null
     private lateinit var contactId: String
     private var displayer: AlertDialogFragment.AlertDialogDisplayer? = null
-    private var currentContact: Contact? = null
     private var button: Button? = null
     private var isNotificationsEnabled = false
-    private var viewModel: ContactDetailsViewModel? = null
     private var progressBar: ProgressBar? = null
     private var contactObserver = Observer<Contact> {
         currentContact = it
@@ -57,8 +67,8 @@ class ContactDetailsFragment : Fragment(R.layout.fragment_contact_details) {
         descriptionTextView.text = it.description
         if (it.dayOfBirthday != null && it.monthOfBirthday != null) {
             birthdayTextView.text = getString(
-                    R.string.contact_birthday,
-                    completeDateOfBirthday(it.dayOfBirthday, it.monthOfBirthday)
+                R.string.contact_birthday,
+                completeDateOfBirthday(it.dayOfBirthday, it.monthOfBirthday)
             )
             button?.isEnabled = true
         } else {
@@ -96,8 +106,12 @@ class ContactDetailsFragment : Fragment(R.layout.fragment_contact_details) {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        (activity?.application as ContactListApplication)
+            .appComponent
+            .plusContactDetailsComponent()
+            .inject(this)
         super.onCreate(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(ContactDetailsViewModel::class.java)
+        viewModel = injectViewModel(factory)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -108,8 +122,8 @@ class ContactDetailsFragment : Fragment(R.layout.fragment_contact_details) {
         button = view.findViewById(R.id.button_reminder)
         updateButtonState()
         button?.setOnClickListener { clickOnNotificationButton() }
-        viewModel?.contact?.observe(viewLifecycleOwner, contactObserver)
-        viewModel?.isLoading?.observe(viewLifecycleOwner, Observer { isLoading ->
+        viewModel.contact.observe(viewLifecycleOwner, contactObserver)
+        viewModel.isLoading.observe(viewLifecycleOwner, { isLoading ->
             when(isLoading) {
                 true -> progressBar?.visibility = View.VISIBLE
                 false -> progressBar?.visibility = View.GONE
@@ -161,9 +175,9 @@ class ContactDetailsFragment : Fragment(R.layout.fragment_contact_details) {
             button?.text = getString(R.string.off_notification)
             isNotificationsEnabled = true
             alarmManager?.set(
-                    AlarmManager.RTC_WAKEUP,
-                    nextCalendarBirthday().timeInMillis,
-                    pendingIntent
+                AlarmManager.RTC_WAKEUP,
+                nextCalendarBirthday().timeInMillis,
+                pendingIntent
             )
         }
     }
@@ -190,14 +204,14 @@ class ContactDetailsFragment : Fragment(R.layout.fragment_contact_details) {
 
     private fun createPendingIntent(): PendingIntent {
         val intent = Intent(activity, BirthdayReceiver::class.java)
-                .putExtra(EXTRA_CONTACT_ID, contactId)
-                .putExtra(EXTRA_NAME, currentContact?.name)
+            .putExtra(EXTRA_CONTACT_ID, contactId)
+            .putExtra(EXTRA_NAME, currentContact?.name)
         return PendingIntent.getBroadcast(context, contactId.toInt(), intent, 0)
     }
 
     private fun isLeap(year: Int) = ((year % 4) == 0 && (year % 100) != 0) || (year % 400) == 0
 
-    private fun loadContactById() = viewModel?.getContactById(requireContext(), contactId)
+    private fun loadContactById() = viewModel.getContactById(contactId)
 
     private fun nextCalendarBirthday(): Calendar {
         val dayBirthday: Int = requireNotNull(currentContact?.dayOfBirthday)
