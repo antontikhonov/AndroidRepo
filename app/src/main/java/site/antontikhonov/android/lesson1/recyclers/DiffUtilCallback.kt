@@ -1,6 +1,7 @@
-package site.antontikhonov.android.lesson1
+package site.antontikhonov.android.lesson1.recyclers
 
 import androidx.recyclerview.widget.DiffUtil
+import site.antontikhonov.android.lesson1.models.Contact
 
 object DiffUtilCallback : DiffUtil.ItemCallback<Contact>() {
        override fun areItemsTheSame(oldItem: Contact, newItem: Contact): Boolean {

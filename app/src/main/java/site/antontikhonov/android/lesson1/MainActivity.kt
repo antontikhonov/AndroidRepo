@@ -7,6 +7,12 @@ import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import site.antontikhonov.android.lesson1.fragments.AlertDialogFragment
+import site.antontikhonov.android.lesson1.fragments.ContactDetailsFragment
+import site.antontikhonov.android.lesson1.fragments.ContactListFragment
+import site.antontikhonov.android.lesson1.fragments.EXTRA_CONTACT_ID
+import site.antontikhonov.android.lesson1.receivers.CHANNEL_ID
+import site.antontikhonov.android.lesson1.recyclers.ContactListAdapter
 import java.lang.ref.WeakReference
 
 private const val TAG = "fragmentTag"

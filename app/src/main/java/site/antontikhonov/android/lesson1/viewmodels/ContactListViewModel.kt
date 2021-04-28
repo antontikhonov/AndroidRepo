@@ -1,6 +1,5 @@
-package site.antontikhonov.android.lesson1
+package site.antontikhonov.android.lesson1.viewmodels
 
-import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -10,16 +9,19 @@ import io.reactivex.rxjava3.kotlin.addTo
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
 import io.reactivex.rxjava3.subjects.PublishSubject
+import site.antontikhonov.android.lesson1.models.Contact
+import site.antontikhonov.android.lesson1.data.ContactRepository
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
-class ContactListViewModel : ViewModel() {
+class ContactListViewModel @Inject constructor(private val repository: ContactRepository)
+       : ViewModel() {
 
        val contacts: LiveData<List<Contact>>
               get() = mutableContacts
        val isLoading: LiveData<Boolean>
               get() = mutableIsLoading
-
        private val disposable: CompositeDisposable = CompositeDisposable()
        private val mutableContacts: MutableLiveData<List<Contact>> = MutableLiveData()
        private val mutableIsLoading: MutableLiveData<Boolean> = MutableLiveData()
@@ -29,8 +31,8 @@ class ContactListViewModel : ViewModel() {
               super.onCleared()
        }
 
-       fun loadContactList(context: Context) {
-              ContactProviderRepository.loadContactList(context, "")
+       fun loadContactList() {
+              repository.loadContactList("")
                      .subscribeOn(Schedulers.io())
                      .observeOn(AndroidSchedulers.mainThread())
                      .doOnSubscribe { mutableIsLoading.postValue(true) }
@@ -47,10 +49,10 @@ class ContactListViewModel : ViewModel() {
                      .addTo(disposable)
        }
 
-       fun searchContact(context: Context, subject: PublishSubject<String>) {
+       fun searchContact(subject: PublishSubject<String>) {
               subject.debounce(300, TimeUnit.MILLISECONDS)
                      .distinctUntilChanged()
-                     .switchMapSingle { name -> ContactProviderRepository.loadContactList(context, name)
+                     .switchMapSingle { name -> repository.loadContactList(name)
                             .doOnSubscribe { mutableIsLoading.postValue(true) }
                      }
                      .subscribeOn(Schedulers.io())

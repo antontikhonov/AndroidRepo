@@ -1,8 +1,10 @@
-package site.antontikhonov.android.lesson1
+package site.antontikhonov.android.lesson1.recyclers
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
+import site.antontikhonov.android.lesson1.models.Contact
+import site.antontikhonov.android.lesson1.R
 
 class ContactListAdapter(private val onItemClickAction: (String) -> Unit) : ListAdapter<Contact,
         ContactViewHolder>(DiffUtilCallback) {

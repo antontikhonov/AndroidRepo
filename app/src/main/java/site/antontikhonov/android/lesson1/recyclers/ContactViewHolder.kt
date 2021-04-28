@@ -1,10 +1,12 @@
-package site.antontikhonov.android.lesson1
+package site.antontikhonov.android.lesson1.recyclers
 
 import android.net.Uri
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import site.antontikhonov.android.lesson1.models.Contact
+import site.antontikhonov.android.lesson1.R
 
 class ContactViewHolder(itemView: View, onItemClick: (Int) -> Unit) : RecyclerView.ViewHolder(itemView) {
        private var contactImageView: ImageView = itemView.findViewById(R.id.contact_image)
@@ -13,7 +15,7 @@ class ContactViewHolder(itemView: View, onItemClick: (Int) -> Unit) : RecyclerVi
 
        init {
               itemView.setOnClickListener {
-                     val position = adapterPosition
+                     val position = bindingAdapterPosition
                      if(position != RecyclerView.NO_POSITION) {
                             onItemClick(position)
                      }

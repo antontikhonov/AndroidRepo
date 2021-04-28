@@ -1,4 +1,4 @@
-package site.antontikhonov.android.lesson1
+package site.antontikhonov.android.lesson1.fragments
 
 import android.Manifest
 import android.content.Context
@@ -14,22 +14,29 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
+import site.antontikhonov.android.lesson1.*
+import site.antontikhonov.android.lesson1.extensions.convertToObservable
+import site.antontikhonov.android.lesson1.extensions.injectViewModel
+import site.antontikhonov.android.lesson1.recyclers.ContactDecorator
+import site.antontikhonov.android.lesson1.recyclers.ContactListAdapter
+import site.antontikhonov.android.lesson1.viewmodels.ContactListViewModel
+import javax.inject.Inject
 
 class ContactListFragment : Fragment(R.layout.fragment_contact_list) {
 
+    @Inject
+    lateinit var factory: ViewModelProvider.Factory
+    private lateinit var viewModel: ContactListViewModel
+    private var progressBar: ProgressBar? = null
     private var recyclerView: RecyclerView? = null
     private var adapter: ContactListAdapter? = null
     private var contactDecorator: ContactDecorator? = null
     private var displayer: AlertDialogFragment.AlertDialogDisplayer? = null
     private var onItemClickListener: ContactListAdapter.OnItemClickListener? = null
-    private var viewModel: ContactListViewModel? = null
-    private var progressBar: ProgressBar? = null
-
     val requestPermissionLauncher =
             registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
                 if (isGranted) {
@@ -57,10 +64,16 @@ class ContactListFragment : Fragment(R.layout.fragment_contact_list) {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        (activity?.application as ContactListApplication)
+            .appComponent
+            .plusContactListComponent()
+            .inject(this)
         super.onCreate(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(ContactListViewModel::class.java)
+        viewModel = injectViewModel(factory)
         setHasOptionsMenu(true)
-        val drawableDivider = ContextCompat.getDrawable(requireContext().applicationContext, R.drawable.divider)
+        val drawableDivider = ContextCompat.getDrawable(requireContext().applicationContext,
+            R.drawable.divider
+        )
         if(drawableDivider != null) {
             val offsetPx = resources.getDimensionPixelSize(R.dimen.main_padding)
             contactDecorator = ContactDecorator(drawableDivider, offsetPx)
@@ -73,8 +86,8 @@ class ContactListFragment : Fragment(R.layout.fragment_contact_list) {
         (activity as AppCompatActivity).supportActionBar?.title = getString(R.string.contact_list_title)
         progressBar = view.findViewById(R.id.progress_bar_contact_list)
         initializeRecyclerView(view)
-        viewModel?.contacts?.observe(viewLifecycleOwner, Observer { adapter?.submitList(it) })
-        viewModel?.isLoading?.observe(viewLifecycleOwner, Observer { isLoading ->
+        viewModel.contacts.observe(viewLifecycleOwner, { adapter?.submitList(it) })
+        viewModel.isLoading.observe(viewLifecycleOwner, { isLoading ->
             when(isLoading) {
                 true -> progressBar?.visibility = View.VISIBLE
                 false -> progressBar?.visibility = View.GONE
@@ -105,7 +118,7 @@ class ContactListFragment : Fragment(R.layout.fragment_contact_list) {
         val searchItem = menu.findItem(R.id.appSearchBar)
         val searchView: SearchView = searchItem.actionView as SearchView
         searchView.queryHint = getString(R.string.search_hint)
-        viewModel?.searchContact(requireContext(), RxSearchObservable.fromView(searchView))
+        viewModel.searchContact(searchView.convertToObservable())
         super.onCreateOptionsMenu(menu, inflater)
     }
 
@@ -137,7 +150,7 @@ class ContactListFragment : Fragment(R.layout.fragment_contact_list) {
         }
     }
 
-    private fun loadContacts() = viewModel?.loadContactList(requireContext())
+    private fun loadContacts() = viewModel.loadContactList()
 
     private fun showNoContactPermissionSnackbar() {
         Snackbar.make(requireView(), R.string.snackbar_title_list, Snackbar.LENGTH_INDEFINITE)

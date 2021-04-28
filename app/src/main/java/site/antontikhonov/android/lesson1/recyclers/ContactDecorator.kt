@@ -1,4 +1,4 @@
-package site.antontikhonov.android.lesson1
+package site.antontikhonov.android.lesson1.recyclers
 
 import android.graphics.Canvas
 import android.graphics.Rect

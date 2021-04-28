@@ -1,4 +1,4 @@
-package site.antontikhonov.android.lesson1
+package site.antontikhonov.android.lesson1.receivers
 
 import android.app.AlarmManager
 import android.app.NotificationManager
@@ -7,6 +7,10 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
+import site.antontikhonov.android.lesson1.MainActivity
+import site.antontikhonov.android.lesson1.R
+import site.antontikhonov.android.lesson1.fragments.EXTRA_CONTACT_ID
+import site.antontikhonov.android.lesson1.fragments.EXTRA_NAME
 import java.util.*
 
 const val CHANNEL_ID = "Channel_01"
