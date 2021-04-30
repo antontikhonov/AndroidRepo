@@ -1,2 +1,4 @@
-include ':app'
-rootProject.name = "Lesson1"
+include ':application'
+include ':domain'
+include ':presentation'
+rootProject.name = "ContactList"
