@@ -1,6 +1,6 @@
 package site.antontikhonov.android.domain.notification
 
-import java.util.*
+import java.util.Calendar
 
 class CalendarRepositoryImpl : CalendarRepository {
     private var calendar = Calendar.getInstance()

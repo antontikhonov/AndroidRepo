@@ -9,6 +9,7 @@
     <string name="content_image">contact_photo</string>
     <string name="contact_list_title">Список контактов</string>
     <string name="contact_details_title">Детали контакта</string>
+    <string name="contact_map_title">Карта</string>
     <string name="contact_birthday">День рождения: %1$s</string>
     <string name="on_notification">Включить напоминания</string>
     <string name="off_notification">Выключить напоминания</string>
@@ -37,4 +38,10 @@
     <string name="snackbar_title_details">Требуется разрешение для загрузки информации о контакте</string>
     <string name="search_hint">Найти контакт</string>
     <string name="search_contact_title">Поиск контакта</string>
+    <string name="setup_location">Установить местоположение</string>
+    <string name="change_location">Сменить местоположение</string>
+    <string name="approve">Подтвердить</string>
+    <string name="showAll">Показать всех</string>
+    <string name="hideAll">Скрыть</string>
+    <string name="no_location_data">Нет сохранённых данных</string>
 </resources>

@@ -9,7 +9,7 @@ import site.antontikhonov.android.presentation.R
 import site.antontikhonov.android.presentation.fragments.EXTRA_CONTACT_ID
 import site.antontikhonov.android.presentation.fragments.EXTRA_MESSAGE
 import site.antontikhonov.android.presentation.fragments.EXTRA_NAME
-import java.util.*
+import java.util.Calendar
 import javax.inject.Inject
 
 class BirthdayNotification @Inject constructor(private val context: Context)

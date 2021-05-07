@@ -1,6 +1,8 @@
 package site.antontikhonov.android.domain.contactlist
 
-class ContactListModel(private val repository: ContactListRepository)
+import site.antontikhonov.android.domain.ContactRepository
+
+class ContactListModel(private val repository: ContactRepository)
     : ContactListInteractor {
     override fun loadContacts(name: String) = repository.readContacts(name)
 }

@@ -4,4 +4,5 @@ interface AppContainer {
     fun plusContactListContainer(): ContactListContainer
     fun plusContactDetailsContainer(): ContactDetailsContainer
     fun plusNotificationContainer(): NotificationContainer
+    fun plusContactMapsContainer(): ContactMapsContainer
 }

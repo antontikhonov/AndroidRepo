@@ -10,6 +10,7 @@ import site.antontikhonov.android.domain.contactdetails.ContactDetailsEntity
 import site.antontikhonov.android.domain.contactdetails.ContactDetailsInteractor
 import site.antontikhonov.android.domain.notification.BirthdayNotificationInteractor
 import site.antontikhonov.android.presentation.schedulers.BaseSchedulerProvider
+import site.antontikhonov.android.domain.contactlocation.ContactLocationEntity
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -26,9 +27,12 @@ class ContactDetailsViewModel @Inject constructor(
               get() = mutableIsLoading
        val isSetNotification: LiveData<Boolean>
               get() = mutableIsSetNotification
+       val location: LiveData<ContactLocationEntity>
+              get() = mutableLocation
        private val mutableContact: MutableLiveData<ContactDetailsEntity> = MutableLiveData()
        private val mutableIsLoading: MutableLiveData<Boolean> = MutableLiveData()
        private val mutableIsSetNotification: MutableLiveData<Boolean> = MutableLiveData()
+       private val mutableLocation: MutableLiveData<ContactLocationEntity> = MutableLiveData()
        private val disposable: CompositeDisposable = CompositeDisposable()
 
        override fun onCleared() {
@@ -47,6 +51,24 @@ class ContactDetailsViewModel @Inject constructor(
                      contact.monthOfBirthday - 1
               )
               haveNotification(contact.id)
+       }
+
+       fun getLocationById(id: String) {
+              contactDetailsInteractor.loadLocationById(id)
+                     .subscribeOn(schedulerProvider.io())
+                     .observeOn(schedulerProvider.ui())
+                     .doOnSubscribe { mutableIsLoading.postValue(true) }
+                     .subscribeBy(
+                            onSuccess = {
+                                   mutableLocation.postValue(it)
+                                   mutableIsLoading.postValue(false)
+                            },
+                            onError = {
+                                   mutableIsLoading.postValue(false)
+                                   Timber.e(it)
+                            }
+                     )
+                     .addTo(disposable)
        }
 
        fun getContactById(id: String) {

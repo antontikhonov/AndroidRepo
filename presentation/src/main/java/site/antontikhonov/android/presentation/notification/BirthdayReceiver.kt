@@ -15,7 +15,7 @@ import site.antontikhonov.android.presentation.di.HasComponent
 import site.antontikhonov.android.presentation.fragments.EXTRA_CONTACT_ID
 import site.antontikhonov.android.presentation.fragments.EXTRA_MESSAGE
 import site.antontikhonov.android.presentation.fragments.EXTRA_NAME
-import java.util.*
+import java.util.Calendar
 import javax.inject.Inject
 
 const val CHANNEL_ID = "Channel_01"

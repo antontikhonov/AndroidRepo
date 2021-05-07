@@ -5,7 +5,7 @@ import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap
 import site.antontikhonov.android.presentation.viewmodels.ContactDetailsViewModel
-import site.antontikhonov.android.application.contactlist.ViewModelKey
+import site.antontikhonov.android.application.ViewModelKey
 
 @Module
 abstract class ContactDetailsViewModelModule {

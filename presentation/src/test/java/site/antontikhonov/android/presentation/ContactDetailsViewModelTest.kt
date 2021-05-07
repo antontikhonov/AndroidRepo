@@ -13,14 +13,17 @@ import org.mockito.Mockito.verify
 import org.mockito.junit.MockitoJUnitRunner
 import site.antontikhonov.android.domain.contactdetails.ContactDetailsEntity
 import site.antontikhonov.android.domain.contactdetails.ContactDetailsInteractor
-import site.antontikhonov.android.domain.notification.*
+import site.antontikhonov.android.domain.notification.BirthdayNotificationInteractor
+import site.antontikhonov.android.domain.notification.BirthdayNotificationModel
+import site.antontikhonov.android.domain.notification.BirthdayNotificationRepository
+import site.antontikhonov.android.domain.notification.CalendarRepository
+import site.antontikhonov.android.domain.notification.CalendarRepositoryImpl
 import site.antontikhonov.android.presentation.schedulers.TrampolineSchedulerProvider
 import site.antontikhonov.android.presentation.viewmodels.ContactDetailsViewModel
-import java.util.*
+import java.util.Calendar
 
 @RunWith(MockitoJUnitRunner::class)
 class ContactDetailsViewModelTest {
-
     @Rule
     @JvmField
     var rule: TestRule = InstantTaskExecutorRule()

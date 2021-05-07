@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap
+import site.antontikhonov.android.application.ViewModelKey
 import site.antontikhonov.android.presentation.viewmodels.ContactListViewModel
 
 @Module

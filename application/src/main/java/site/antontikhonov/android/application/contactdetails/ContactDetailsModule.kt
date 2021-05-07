@@ -5,17 +5,20 @@ import dagger.Provides
 import site.antontikhonov.android.domain.notification.CalendarRepository
 import site.antontikhonov.android.domain.contactdetails.ContactDetailsInteractor
 import site.antontikhonov.android.domain.contactdetails.ContactDetailsModel
-import site.antontikhonov.android.domain.contactdetails.ContactDetailsRepository
 import site.antontikhonov.android.domain.notification.BirthdayNotificationInteractor
 import site.antontikhonov.android.domain.notification.BirthdayNotificationModel
 import site.antontikhonov.android.domain.notification.BirthdayNotificationRepository
+import site.antontikhonov.android.domain.ContactRepository
+import site.antontikhonov.android.domain.contactlocation.ContactLocationRepository
 
 @Module
 class ContactDetailsModule {
     @ContactsDetailsScope
     @Provides
-    fun providesContactDetailsInteractor(repository: ContactDetailsRepository): ContactDetailsInteractor
-        = ContactDetailsModel(repository)
+    fun providesContactDetailsInteractor(
+        contactRepository: ContactRepository,
+        contactLocationRepository: ContactLocationRepository
+    ): ContactDetailsInteractor = ContactDetailsModel(contactRepository, contactLocationRepository)
 
     @ContactsDetailsScope
     @Provides

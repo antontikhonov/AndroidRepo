@@ -4,15 +4,20 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.Mockito.*
+import org.mockito.Mockito.`when`
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.verify
 import org.mockito.junit.MockitoJUnitRunner
 import site.antontikhonov.android.domain.contactdetails.ContactDetailsEntity
-import site.antontikhonov.android.domain.notification.*
-import java.util.*
+import site.antontikhonov.android.domain.notification.BirthdayNotificationInteractor
+import site.antontikhonov.android.domain.notification.BirthdayNotificationModel
+import site.antontikhonov.android.domain.notification.BirthdayNotificationRepository
+import site.antontikhonov.android.domain.notification.CalendarRepository
+import site.antontikhonov.android.domain.notification.CalendarRepositoryImpl
+import java.util.Calendar
 
 @RunWith(MockitoJUnitRunner::class)
 class BirthdayNotificationModelTest {
-
     @Mock
     private lateinit var interactor: BirthdayNotificationInteractor
     private lateinit var calendarRepository: CalendarRepository

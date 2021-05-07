@@ -10,6 +10,7 @@ import android.os.Bundle
 import site.antontikhonov.android.presentation.fragments.AlertDialogFragment
 import site.antontikhonov.android.presentation.fragments.ContactDetailsFragment
 import site.antontikhonov.android.presentation.fragments.ContactListFragment
+import site.antontikhonov.android.presentation.fragments.ContactMapsFragment
 import site.antontikhonov.android.presentation.fragments.EXTRA_CONTACT_ID
 import site.antontikhonov.android.presentation.notification.CHANNEL_ID
 import site.antontikhonov.android.presentation.recyclers.ContactListAdapter
@@ -20,7 +21,8 @@ private const val DIALOG_TAG = "dialogTag"
 
 class MainActivity : AppCompatActivity(),
         ContactListAdapter.OnItemClickListener,
-        AlertDialogFragment.AlertDialogDisplayer {
+        AlertDialogFragment.AlertDialogDisplayer,
+        ContactDetailsFragment.OnButtonLocationListener {
 
     private var alertDialogFragment: AlertDialogFragment? = null
 
@@ -63,6 +65,13 @@ class MainActivity : AppCompatActivity(),
 
     override fun clickItem(id: String) {
         replaceContactDetailsFragment(id)
+    }
+
+    override fun onButtonLocationClick(id: String) {
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fragments_container, ContactMapsFragment.newInstance(id))
+            .addToBackStack(null)
+            .commit()
     }
 
     fun restartCheckPermission() {
