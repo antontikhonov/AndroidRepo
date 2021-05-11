@@ -1,8 +1,6 @@
 package site.antontikhonov.android.presentation.fragments
 
 import android.Manifest
-import android.app.AlarmManager
-import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -10,10 +8,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
 import android.view.View
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.ProgressBar
-import android.widget.TextView
+import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -25,7 +20,6 @@ import site.antontikhonov.android.domain.contactdetails.ContactDetailsEntity
 import site.antontikhonov.android.presentation.R
 import site.antontikhonov.android.presentation.di.HasComponent
 import site.antontikhonov.android.presentation.extensions.injectViewModel
-import site.antontikhonov.android.presentation.receivers.BirthdayReceiver
 import site.antontikhonov.android.presentation.viewmodels.ContactDetailsViewModel
 import java.lang.StringBuilder
 import java.util.*
@@ -33,6 +27,7 @@ import javax.inject.Inject
 
 const val EXTRA_CONTACT_ID = "CONTACT_ID"
 const val EXTRA_NAME = "CONTACT_NAME"
+const val EXTRA_MESSAGE = "CONTACT_MESSAGE"
 const val EXTRA_START_CHECK_PERMISSION = "START_CHECK_PERMISSION"
 const val URI_PACKAGE_SCHEME = "package:"
 
@@ -45,7 +40,6 @@ class ContactDetailsFragment : Fragment(R.layout.fragment_contact_details) {
     private lateinit var contactId: String
     private var displayer: AlertDialogFragment.AlertDialogDisplayer? = null
     private var button: Button? = null
-    private var isNotificationsEnabled = false
     private var progressBar: ProgressBar? = null
     private var contactObserver = Observer<ContactDetailsEntity> {
         currentContact = it
@@ -117,8 +111,8 @@ class ContactDetailsFragment : Fragment(R.layout.fragment_contact_details) {
         progressBar = view.findViewById(R.id.progress_bar_contact_details)
         contactId = requireNotNull(arguments?.getString(EXTRA_CONTACT_ID))
         button = view.findViewById(R.id.button_reminder)
-        updateButtonState()
-        button?.setOnClickListener { clickOnNotificationButton() }
+
+        viewModel.haveNotification(contactId)
         viewModel.contact.observe(viewLifecycleOwner, contactObserver)
         viewModel.isLoading.observe(viewLifecycleOwner, { isLoading ->
             when(isLoading) {
@@ -126,6 +120,10 @@ class ContactDetailsFragment : Fragment(R.layout.fragment_contact_details) {
                 false -> progressBar?.visibility = View.GONE
             }
         })
+        viewModel.isSetNotification.observe(viewLifecycleOwner, this::updateButtonState)
+        button?.setOnClickListener {
+            currentContact?.let { viewModel.switchBirthdayNotification(it) }
+        }
     }
 
     override fun onStart() {
@@ -160,25 +158,6 @@ class ContactDetailsFragment : Fragment(R.layout.fragment_contact_details) {
         }
     }
 
-    private fun clickOnNotificationButton() {
-        val pendingIntent = createPendingIntent()
-        val alarmManager = context?.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
-        if (isNotificationsEnabled) {
-            button?.text = getString(R.string.on_notification)
-            isNotificationsEnabled = false
-            alarmManager?.cancel(pendingIntent)
-            pendingIntent.cancel()
-        } else {
-            button?.text = getString(R.string.off_notification)
-            isNotificationsEnabled = true
-            alarmManager?.set(
-                AlarmManager.RTC_WAKEUP,
-                nextCalendarBirthday().timeInMillis,
-                pendingIntent
-            )
-        }
-    }
-
     private fun completeDateOfBirthday(day: Int, month: Int): String {
         val result = StringBuilder("$day ")
         val monthArray = resources.getStringArray(R.array.array_months)
@@ -199,37 +178,7 @@ class ContactDetailsFragment : Fragment(R.layout.fragment_contact_details) {
         return result.toString()
     }
 
-    private fun createPendingIntent(): PendingIntent {
-        val intent = Intent(activity, BirthdayReceiver::class.java)
-            .putExtra(EXTRA_CONTACT_ID, contactId)
-            .putExtra(EXTRA_NAME, currentContact?.name)
-        return PendingIntent.getBroadcast(context, contactId.toInt(), intent, 0)
-    }
-
-    private fun isLeap(year: Int) = ((year % 4) == 0 && (year % 100) != 0) || (year % 400) == 0
-
     private fun loadContactById() = viewModel.getContactById(contactId)
-
-    private fun nextCalendarBirthday(): Calendar {
-        val dayBirthday: Int = requireNotNull(currentContact?.dayOfBirthday)
-        val monthBirthday: Int = requireNotNull(currentContact?.monthOfBirthday?.minus(1))
-        val birthdayCalendar = GregorianCalendar.getInstance()
-        birthdayCalendar.set(Calendar.DAY_OF_MONTH, dayBirthday)
-        birthdayCalendar.set(Calendar.MONTH, monthBirthday)
-        val currentCalendar = GregorianCalendar.getInstance()
-        if(birthdayCalendar.get(Calendar.MONTH) == Calendar.FEBRUARY && birthdayCalendar.get(Calendar.DAY_OF_MONTH) == 29) {
-            if(isLeap(birthdayCalendar.get(Calendar.YEAR)) && birthdayCalendar.before(currentCalendar)) {
-                birthdayCalendar.add(Calendar.YEAR, 4)
-            } else if(!isLeap(birthdayCalendar.get(Calendar.YEAR))) {
-                while(!isLeap(birthdayCalendar.get(Calendar.YEAR))) {
-                    birthdayCalendar.add(Calendar.YEAR, 1)
-                }
-            }
-        } else if (birthdayCalendar.before(currentCalendar)) {
-            birthdayCalendar.add(Calendar.YEAR, 1)
-        }
-        return birthdayCalendar
-    }
 
     private fun showNoContactPermissionSnackbar() {
         Snackbar.make(requireView(), R.string.snackbar_title_details, Snackbar.LENGTH_INDEFINITE)
@@ -243,14 +192,8 @@ class ContactDetailsFragment : Fragment(R.layout.fragment_contact_details) {
             .show()
     }
 
-    private fun updateButtonState() {
-        isNotificationsEnabled = PendingIntent.getBroadcast(
-            context,
-            contactId.toInt(),
-            Intent(activity, BirthdayReceiver::class.java),
-            PendingIntent.FLAG_NO_CREATE
-        ) != null
-        if (isNotificationsEnabled) {
+    private fun updateButtonState(haveNotification: Boolean) {
+        if(haveNotification) {
             button?.text = getString(R.string.off_notification)
         } else {
             button?.text = getString(R.string.on_notification)

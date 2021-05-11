@@ -11,7 +11,7 @@ import site.antontikhonov.android.presentation.fragments.AlertDialogFragment
 import site.antontikhonov.android.presentation.fragments.ContactDetailsFragment
 import site.antontikhonov.android.presentation.fragments.ContactListFragment
 import site.antontikhonov.android.presentation.fragments.EXTRA_CONTACT_ID
-import site.antontikhonov.android.presentation.receivers.CHANNEL_ID
+import site.antontikhonov.android.presentation.notification.CHANNEL_ID
 import site.antontikhonov.android.presentation.recyclers.ContactListAdapter
 import java.lang.ref.WeakReference
 
@@ -75,7 +75,7 @@ class MainActivity : AppCompatActivity(),
 
     private fun createNotificationChannel() {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(CHANNEL_ID, this.getString(R.string.notification_channel_name), NotificationManager.IMPORTANCE_DEFAULT)
+            val channel = NotificationChannel(CHANNEL_ID, this.getString(R.string.notification_channel_name), NotificationManager.IMPORTANCE_HIGH)
             (this.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager)?.createNotificationChannel(channel)
         }
     }

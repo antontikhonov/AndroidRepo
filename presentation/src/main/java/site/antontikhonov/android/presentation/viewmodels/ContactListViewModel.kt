@@ -3,19 +3,21 @@ package site.antontikhonov.android.presentation.viewmodels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.addTo
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import io.reactivex.rxjava3.schedulers.Schedulers
 import io.reactivex.rxjava3.subjects.PublishSubject
 import site.antontikhonov.android.domain.contactlist.ContactListEntity
 import site.antontikhonov.android.domain.contactlist.ContactListInteractor
+import site.antontikhonov.android.presentation.schedulers.BaseSchedulerProvider
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
-class ContactListViewModel @Inject constructor(private val interactor: ContactListInteractor)
+class ContactListViewModel @Inject constructor(
+       private val interactor: ContactListInteractor,
+       private val schedulerProvider: BaseSchedulerProvider
+       )
        : ViewModel() {
 
        val contacts: LiveData<List<ContactListEntity>>
@@ -33,8 +35,8 @@ class ContactListViewModel @Inject constructor(private val interactor: ContactLi
 
        fun loadContactList() {
               interactor.loadContacts("")
-                     .subscribeOn(Schedulers.io())
-                     .observeOn(AndroidSchedulers.mainThread())
+                     .subscribeOn(schedulerProvider.io())
+                     .observeOn(schedulerProvider.ui())
                      .doOnSubscribe { mutableIsLoading.postValue(true) }
                      .subscribeBy(
                             onSuccess = {
@@ -55,8 +57,8 @@ class ContactListViewModel @Inject constructor(private val interactor: ContactLi
                      .switchMapSingle { name -> interactor.loadContacts(name)
                             .doOnSubscribe { mutableIsLoading.postValue(true) }
                      }
-                     .subscribeOn(Schedulers.io())
-                     .observeOn(AndroidSchedulers.mainThread())
+                     .subscribeOn(schedulerProvider.io())
+                     .observeOn(schedulerProvider.ui())
                      .subscribeBy(
                             onNext = {
                                    mutableContacts.postValue(it)
