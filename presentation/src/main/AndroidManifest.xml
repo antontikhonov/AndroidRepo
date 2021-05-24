@@ -12,7 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <receiver
-            android:name=".receivers.BirthdayReceiver"
+            android:name=".notification.BirthdayReceiver"
             android:enabled="true">
             <intent-filter>
                 <action android:name="site.antontikhonov.android.broadcast" />
