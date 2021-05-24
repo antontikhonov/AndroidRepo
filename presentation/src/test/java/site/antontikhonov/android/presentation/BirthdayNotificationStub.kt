@@ -3,7 +3,7 @@ package site.antontikhonov.android.presentation
 import android.app.AlarmManager
 import android.app.PendingIntent
 import site.antontikhonov.android.domain.notification.BirthdayNotificationRepository
-import java.util.*
+import java.util.Calendar
 import kotlin.collections.HashMap
 
 class BirthdayNotificationStub(

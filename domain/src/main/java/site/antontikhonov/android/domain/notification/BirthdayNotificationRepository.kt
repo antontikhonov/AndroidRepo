@@ -1,6 +1,6 @@
 package site.antontikhonov.android.domain.notification
 
-import java.util.*
+import java.util.Calendar
 
 interface BirthdayNotificationRepository {
     fun checkNotification(id: String): Boolean

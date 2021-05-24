@@ -1,9 +1,8 @@
-package site.antontikhonov.android.application.contactlist
+package site.antontikhonov.android.application
 
 import androidx.lifecycle.ViewModelProvider
 import dagger.Binds
 import dagger.Module
-import site.antontikhonov.android.application.ViewModelFactory
 
 @Module
 abstract class ViewModelFactoryModule {

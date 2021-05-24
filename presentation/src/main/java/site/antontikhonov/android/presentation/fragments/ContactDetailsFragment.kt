@@ -8,7 +8,10 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
 import android.view.View
-import android.widget.*
+import android.widget.Button
+import android.widget.ImageView
+import android.widget.ProgressBar
+import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -22,7 +25,7 @@ import site.antontikhonov.android.presentation.di.HasComponent
 import site.antontikhonov.android.presentation.extensions.injectViewModel
 import site.antontikhonov.android.presentation.viewmodels.ContactDetailsViewModel
 import java.lang.StringBuilder
-import java.util.*
+import java.util.Calendar
 import javax.inject.Inject
 
 const val EXTRA_CONTACT_ID = "CONTACT_ID"
@@ -39,8 +42,10 @@ class ContactDetailsFragment : Fragment(R.layout.fragment_contact_details) {
     private var currentContact: ContactDetailsEntity? = null
     private lateinit var contactId: String
     private var displayer: AlertDialogFragment.AlertDialogDisplayer? = null
-    private var button: Button? = null
+    private var buttonReminder: Button? = null
+    private var buttonLocation: Button? = null
     private var progressBar: ProgressBar? = null
+    private var onButtonLocationListener: OnButtonLocationListener? = null
     private var contactObserver = Observer<ContactDetailsEntity> {
         currentContact = it
         val nameTextView = requireView().findViewById<TextView>(R.id.contact_name_details)
@@ -62,10 +67,10 @@ class ContactDetailsFragment : Fragment(R.layout.fragment_contact_details) {
                 R.string.contact_birthday,
                 completeDateOfBirthday(it.dayOfBirthday, it.monthOfBirthday)
             )
-            button?.isEnabled = true
+            buttonReminder?.isEnabled = true
         } else {
             birthdayTextView.text = ""
-            button?.isEnabled = false
+            buttonReminder?.isEnabled = false
         }
         if (it.image != null) {
             imageView.setImageURI(Uri.parse(it.image))
@@ -91,8 +96,11 @@ class ContactDetailsFragment : Fragment(R.layout.fragment_contact_details) {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        if (context is AlertDialogFragment.AlertDialogDisplayer) {
+        if(context is AlertDialogFragment.AlertDialogDisplayer) {
             displayer = context
+        }
+        if(context is OnButtonLocationListener) {
+            onButtonLocationListener = context
         }
     }
 
@@ -110,9 +118,10 @@ class ContactDetailsFragment : Fragment(R.layout.fragment_contact_details) {
         (activity as AppCompatActivity).supportActionBar?.title = getString(R.string.contact_details_title)
         progressBar = view.findViewById(R.id.progress_bar_contact_details)
         contactId = requireNotNull(arguments?.getString(EXTRA_CONTACT_ID))
-        button = view.findViewById(R.id.button_reminder)
-
         viewModel.haveNotification(contactId)
+        buttonReminder = view.findViewById(R.id.button_reminder)
+        buttonLocation = view.findViewById(R.id.button_location)
+        buttonLocation?.setOnClickListener { clickOnLocationButton() }
         viewModel.contact.observe(viewLifecycleOwner, contactObserver)
         viewModel.isLoading.observe(viewLifecycleOwner, { isLoading ->
             when(isLoading) {
@@ -121,9 +130,15 @@ class ContactDetailsFragment : Fragment(R.layout.fragment_contact_details) {
             }
         })
         viewModel.isSetNotification.observe(viewLifecycleOwner, this::updateButtonState)
-        button?.setOnClickListener {
+        buttonReminder?.setOnClickListener {
             currentContact?.let { viewModel.switchBirthdayNotification(it) }
         }
+        viewModel.location.observe(viewLifecycleOwner, { location ->
+            buttonLocation?.text = getString(R.string.change_location)
+            val addressTextView = view.findViewById<TextView>(R.id.contact_address)
+            addressTextView.visibility = View.VISIBLE
+            addressTextView.text = location.address
+        })
     }
 
     override fun onStart() {
@@ -132,13 +147,14 @@ class ContactDetailsFragment : Fragment(R.layout.fragment_contact_details) {
     }
 
     override fun onDestroyView() {
-        button = null
+        buttonReminder = null
         progressBar = null
         super.onDestroyView()
     }
 
     override fun onDetach() {
         displayer = null
+        onButtonLocationListener = null
         requestPermissionLauncher.unregister()
         super.onDetach()
     }
@@ -156,6 +172,10 @@ class ContactDetailsFragment : Fragment(R.layout.fragment_contact_details) {
                 requestPermissionLauncher.launch(Manifest.permission.READ_CONTACTS)
             }
         }
+    }
+
+    private fun clickOnLocationButton() {
+        onButtonLocationListener?.onButtonLocationClick(contactId)
     }
 
     private fun completeDateOfBirthday(day: Int, month: Int): String {
@@ -178,7 +198,10 @@ class ContactDetailsFragment : Fragment(R.layout.fragment_contact_details) {
         return result.toString()
     }
 
-    private fun loadContactById() = viewModel.getContactById(contactId)
+    private fun loadContactById() {
+        viewModel.getContactById(contactId)
+        viewModel.getLocationById(contactId)
+    }
 
     private fun showNoContactPermissionSnackbar() {
         Snackbar.make(requireView(), R.string.snackbar_title_details, Snackbar.LENGTH_INDEFINITE)
@@ -194,10 +217,14 @@ class ContactDetailsFragment : Fragment(R.layout.fragment_contact_details) {
 
     private fun updateButtonState(haveNotification: Boolean) {
         if(haveNotification) {
-            button?.text = getString(R.string.off_notification)
+            buttonReminder?.text = getString(R.string.off_notification)
         } else {
-            button?.text = getString(R.string.on_notification)
+            buttonReminder?.text = getString(R.string.on_notification)
         }
+    }
+
+    interface OnButtonLocationListener {
+        fun onButtonLocationClick(id: String)
     }
 
     companion object {

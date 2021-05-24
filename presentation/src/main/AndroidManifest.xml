@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="site.antontikhonov.android.presentation">
 
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
 
     <application
@@ -11,6 +12,14 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/google_maps_key" />
+        <meta-data
+            android:name="com.google.gms.version"
+            android:value="@integer/google_play_services_version" />
+
         <receiver
             android:name=".notification.BirthdayReceiver"
             android:enabled="true">
@@ -18,10 +27,13 @@
                 <action android:name="site.antontikhonov.android.broadcast" />
             </intent-filter>
         </receiver>
-        <activity android:name=".MainActivity"
+
+        <activity
+            android:name=".MainActivity"
             android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

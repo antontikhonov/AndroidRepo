@@ -1,4 +1,4 @@
-package site.antontikhonov.android.application.contactlist
+package site.antontikhonov.android.application
 
 import androidx.lifecycle.ViewModel
 import dagger.MapKey
